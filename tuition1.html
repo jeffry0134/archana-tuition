@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archana Tuition Center - Management System</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-hover: #1e40af;
+            --secondary: #0284c7;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --border: #cbd5e1;
+            --success: #16a34a;
+            --danger: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        header h1 {
+            color: var(--primary);
+            font-size: 2.2rem;
+            letter-spacing: 0.5px;
+        }
+
+        header p {
+            color: #64748b;
+            font-size: 1rem;
+            margin-top: 4px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            margin-bottom: 28px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            color: var(--primary);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-number {
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        input, select, textarea {
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover { opacity: 0.9; }
+        .btn-success { background-color: var(--success); }
+        .btn-secondary { background-color: var(--secondary); }
+        .btn-danger { background-color: var(--danger); }
+        .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .student-link {
+            color: var(--secondary);
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        /* MODAL POPUP */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .subject-row {
+            display: grid;
+            grid-template-columns: 130px 1fr 1fr;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 8px;
+            background: #f8fafc;
+            padding: 6px 10px;
+            border-radius: 6px;
+        }
+
+        /* PRINT STYLES */
+        #print-section { display: none; }
+
+        @media print {
+            body * { visibility: hidden; }
+
+            #print-section, #print-section * { visibility: visible; }
+
+            #print-section {
+                display: block !important;
+                position: absolute;
+                left: 0; top: 0;
+                width: 100%;
+                padding: 20px;
+                background: white;
+            }
+
+            .report-header {
+                text-align: center;
+                border-bottom: 2px solid #000;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }
+
+            .report-info {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 20px;
+                font-size: 1rem;
+            }
+
+            .print-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+            }
+
+            .print-table th, .print-table td {
+                border: 1px solid #000;
+                padding: 8px;
+                text-align: center;
+            }
+
+            .summary-box {
+                display: flex;
+                justify-content: space-around;
+                border: 2px solid #000;
+                padding: 12px;
+                margin-bottom: 20px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>ARCHANA TUITION CENTER</h1>
+            <p>Student Academic & Attendance Management System</p>
+        </header>
+
+        <!-- SECTION 1: NEW STUDENTS SECTION -->
+        <div class="card">
+            <div class="section-title">
+                <span class="section-number">1</span>
+                New Student Enrollment
+            </div>
+            <form id="new-student-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="student-name">Student Full Name *</label>
+                        <input type="text" id="student-name" required placeholder="e.g. Anand Kumar">
+                    </div>
+                    <div class="form-group">
+                        <label for="student-class">Class / Grade *</label>
+                        <input type="text" id="student-class" required placeholder="e.g. Class 10">
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-phone">Contact Number *</label>
+                        <input type="tel" id="contact-phone" required placeholder="e.g. 9876543210">
+                    </div>
+                    <div class="form-group">
+                        <label for="parent-name">Parent / Guardian Name</label>
+                        <input type="text" id="parent-name" placeholder="e.g. Ramesh Kumar">
+                    </div>
+                </div>
+                <button type="submit" class="btn">+ Register New Student</button>
+            </form>
+        </div>
+
+        <!-- SECTION 2: ATTENDANCE & DAILY TRACKING SECTION -->
+        <div class="card">
+            <div class="section-title">
+                <span class="section-number">2</span>
+                Attendance & Daily Tracking
+            </div>
+            <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 12px;">
+                💡 <strong>Tip:</strong> Toggle daily attendance directly on the right. <u>Click on any student's name</u> to record test marks.
+            </p>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student Name (Click to Log Marks)</th>
+                            <th>Class</th>
+                            <th>Contact</th>
+                            <th>Today's Attendance Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendance-table-body">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SECTION 3: SAVED INFO SECTION -->
+        <div class="card">
+            <div class="section-title">
+                <span class="section-number">3</span>
+                Saved Records & Reports
+            </div>
+            <div style="margin-bottom: 12px; display: flex; justify-content: flex-end;">
+                <button class="btn btn-secondary btn-sm" onclick="exportCSV()">📥 Download All Data (CSV)</button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Class</th>
+                            <th>Attendance Ratio</th>
+                            <th>Accumulated Score</th>
+                            <th>Overall %</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="saved-info-table-body">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TEST MARKS MODAL POPUP -->
+    <div class="modal" id="test-modal">
+        <div class="modal-content">
+            <h2 id="modal-student-title" style="color: var(--primary); margin-bottom: 12px;">Log Test Marks</h2>
+            
+            <div class="form-group" style="margin-bottom: 12px;">
+                <label for="modal-date">Test Date</label>
+                <input type="date" id="modal-date">
+            </div>
+
+            <label style="margin-bottom: 8px; display: block; font-weight: 600;">Subject Marks (Obtained / Full Marks):</label>
+            
+            <div class="subject-row">
+                <strong>Mathematics</strong>
+                <input type="number" id="m-math-obt" placeholder="Obtained" min="0">
+                <input type="number" id="m-math-full" placeholder="Full Mark" min="1" value="100">
+            </div>
+            <div class="subject-row">
+                <strong>Science</strong>
+                <input type="number" id="m-sci-obt" placeholder="Obtained" min="0">
+                <input type="number" id="m-sci-full" placeholder="Full Mark" min="1" value="100">
+            </div>
+            <div class="subject-row">
+                <strong>English</strong>
+                <input type="number" id="m-eng-obt" placeholder="Obtained" min="0">
+                <input type="number" id="m-eng-full" placeholder="Full Mark" min="1" value="100">
+            </div>
+            <div class="subject-row">
+                <strong>Social Science</strong>
+                <input type="number" id="m-soc-obt" placeholder="Obtained" min="0">
+                <input type="number" id="m-soc-full" placeholder="Full Mark" min="1" value="100">
+            </div>
+            <div class="subject-row">
+                <strong>Language</strong>
+                <input type="number" id="m-lang-obt" placeholder="Obtained" min="0">
+                <input type="number" id="m-lang-full" placeholder="Full Mark" min="1" value="100">
+            </div>
+
+            <div class="form-group" style="margin-top: 12px; margin-bottom: 16px;">
+                <label for="modal-remarks">Teacher Remarks</label>
+                <textarea id="modal-remarks" placeholder="Optional notes..."></textarea>
+            </div>
+
+            <button class="btn btn-success" onclick="saveTestEntry()">Save Test Entry</button>
+            <button class="btn btn-danger" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- PRINTABLE REPORT CARD TEMPLATE -->
+    <div id="print-section">
+        <div class="report-header">
+            <h1 style="color: black; margin-bottom: 4px;">ARCHANA TUITION CENTER</h1>
+            <p>Student Academic Progress Report</p>
+        </div>
+
+        <div class="report-info">
+            <div><strong>Student Name:</strong> <span id="p-name"></span></div>
+            <div><strong>Class:</strong> <span id="p-class"></span></div>
+            <div><strong>Contact:</strong> <span id="p-phone"></span></div>
+            <div><strong>Attendance:</strong> <span id="p-attendance"></span></div>
+        </div>
+
+        <table class="print-table">
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>Obtained Marks</th>
+                    <th>Full Marks</th>
+                    <th>Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Mathematics</td><td id="p-math-obt"></td><td id="p-math-full"></td><td id="p-math-pct"></td></tr>
+                <tr><td>Science</td><td id="p-sci-obt"></td><td id="p-sci-full"></td><td id="p-sci-pct"></td></tr>
+                <tr><td>English</td><td id="p-eng-obt"></td><td id="p-eng-full"></td><td id="p-eng-pct"></td></tr>
+                <tr><td>Social Science</td><td id="p-soc-obt"></td><td id="p-soc-full"></td><td id="p-soc-pct"></td></tr>
+                <tr><td>Language</td><td id="p-lang-obt"></td><td id="p-lang-full"></td><td id="p-lang-pct"></td></tr>
+            </tbody>
+        </table>
+
+        <div class="summary-box">
+            <div><strong>Total Score:</strong> <span id="p-total-obt"></span> / <span id="p-total-full"></span></div>
+            <div><strong>Overall Percentage:</strong> <span id="p-percentage"></span>%</div>
+        </div>
+    </div>
+
+    <script>
+        let students = JSON.parse(localStorage.getItem('archana_tuition_data')) || [];
+        let activeStudentIndex = -1;
+
+        document.getElementById('modal-date').valueAsDate = new Date();
+
+        function calculateMetrics(student) {
+            let totalDays = student.attendanceLog ? student.attendanceLog.length : 0;
+            let presentDays = student.attendanceLog ? student.attendanceLog.filter(a => a.status === 'Present').length : 0;
+
+            let mathObt = 0, mathFull = 0, sciObt = 0, sciFull = 0, engObt = 0, engFull = 0, socObt = 0, socFull = 0, langObt = 0, langFull = 0;
+
+            (student.testLogs || []).forEach(t => {
+                mathObt += Number(t.mathObt || 0); mathFull += Number(t.mathFull || 0);
+                sciObt += Number(t.sciObt || 0); sciFull += Number(t.sciFull || 0);
+                engObt += Number(t.engObt || 0); engFull += Number(t.engFull || 0);
+                socObt += Number(t.socObt || 0); socFull += Number(t.socFull || 0);
+                langObt += Number(t.langObt || 0); langFull += Number(t.langFull || 0);
+            });
+
+            let grandObt = mathObt + sciObt + engObt + socObt + langObt;
+            let grandFull = mathFull + sciFull + engFull + socFull + langFull;
+            let percentage = grandFull > 0 ? ((grandObt / grandFull) * 100).toFixed(1) : 0;
+
+            return { totalDays, presentDays, mathObt, mathFull, sciObt, sciFull, engObt, engFull, socObt, socFull, langObt, langFull, grandObt, grandFull, percentage };
+        }
+
+        function renderAll() {
+            const attBody = document.getElementById('attendance-table-body');
+            const savedBody = document.getElementById('saved-info-table-body');
+            attBody.innerHTML = '';
+            savedBody.innerHTML = '';
+
+            const today = new Date().toISOString().split('T')[0];
+
+            students.forEach((s, i) => {
+                const m = calculateMetrics(s);
+
+                // Check today's attendance status
+                let todayAtt = (s.attendanceLog || []).find(a => a.date === today);
+                let currentStatus = todayAtt ? todayAtt.status : 'Not Marked';
+
+                // Render Attendance Section
+                const attTr = document.createElement('tr');
+                attTr.innerHTML = `
+                    <td><span class="student-link" onclick="openTestModal(${i})">${s.name}</span></td>
+                    <td>${s.classVal}</td>
+                    <td>${s.phone}</td>
+                    <td>
+                        <button class="btn btn-sm ${currentStatus === 'Present' ? 'btn-success' : 'btn-secondary'}" onclick="toggleAttendance(${i}, 'Present')">Present</button>
+                        <button class="btn btn-sm ${currentStatus === 'Absent' ? 'btn-danger' : 'btn-secondary'}" onclick="toggleAttendance(${i}, 'Absent')">Absent</button>
+                    </td>
+                `;
+                attBody.appendChild(attTr);
+
+                // Render Saved Info Section
+                const savedTr = document.createElement('tr');
+                savedTr.innerHTML = `
+                    <td><strong>${s.name}</strong></td>
+                    <td>${s.classVal}</td>
+                    <td>${m.presentDays} / ${m.totalDays} Present</td>
+                    <td>${m.grandObt} / ${m.grandFull}</td>
+                    <td><strong>${m.percentage}%</strong></td>
+                    <td>
+                        <button class="btn btn-sm btn-secondary" onclick="printReport(${i})">Print Report</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteStudent(${i})">Delete</button>
+                    </td>
+                `;
+                savedBody.appendChild(savedTr);
+            });
+        }
+
+        // Section 1: Register New Student
+        document.getElementById('new-student-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newStudent = {
+                name: document.getElementById('student-name').value,
+                classVal: document.getElementById('student-class').value,
+                phone: document.getElementById('contact-phone').value,
+                parent: document.getElementById('parent-name').value,
+                attendanceLog: [],
+                testLogs: []
+            };
+
+            students.push(newStudent);
+            saveData();
+            e.target.reset();
+            renderAll();
+        });
+
+        // Section 2: Daily Attendance Toggle
+        function toggleAttendance(index, status) {
+            const today = new Date().toISOString().split('T')[0];
+            if (!students[index].attendanceLog) students[index].attendanceLog = [];
+
+            let logIndex = students[index].attendanceLog.findIndex(a => a.date === today);
+            if (logIndex > -1) {
+                students[index].attendanceLog[logIndex].status = status;
+            } else {
+                students[index].attendanceLog.push({ date: today, status: status });
+            }
+
+            saveData();
+            renderAll();
+        }
+
+        // Test Modal Control
+        function openTestModal(index) {
+            activeStudentIndex = index;
+            document.getElementById('modal-student-title').innerText = "Log Test Marks: " + students[index].name;
+            document.getElementById('test-modal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('test-modal').style.display = 'none';
+        }
+
+        function saveTestEntry() {
+            if (activeStudentIndex === -1) return;
+
+            const entry = {
+                date: document.getElementById('modal-date').value,
+                mathObt: document.getElementById('m-math-obt').value || 0,
+                mathFull: document.getElementById('m-math-full').value || 0,
+                sciObt: document.getElementById('m-sci-obt').value || 0,
+                sciFull: document.getElementById('m-sci-full').value || 0,
+                engObt: document.getElementById('m-eng-obt').value || 0,
+                engFull: document.getElementById('m-eng-full').value || 0,
+                socObt: document.getElementById('m-soc-obt').value || 0,
+                socFull: document.getElementById('m-soc-full').value || 0,
+                langObt: document.getElementById('m-lang-obt').value || 0,
+                langFull: document.getElementById('m-lang-full').value || 0,
+                remarks: document.getElementById('modal-remarks').value
+            };
+
+            if (!students[activeStudentIndex].testLogs) students[activeStudentIndex].testLogs = [];
+            students[activeStudentIndex].testLogs.push(entry);
+
+            saveData();
+            closeModal();
+            renderAll();
+        }
+
+        // Delete Student
+        function deleteStudent(index) {
+            if (confirm("Are you sure you want to delete " + students[index].name + "?")) {
+                students.splice(index, 1);
+                saveData();
+                renderAll();
+            }
+        }
+
+        // Print Report
+        function printReport(index) {
+            const s = students[index];
+            const m = calculateMetrics(s);
+
+            document.getElementById('p-name').innerText = s.name;
+            document.getElementById('p-class').innerText = s.classVal;
+            document.getElementById('p-phone').innerText = s.phone;
+            document.getElementById('p-attendance').innerText = `${m.presentDays} / ${m.totalDays} Days Present`;
+
+            const fillRow = (obtId, fullId, pctId, obt, full) => {
+                document.getElementById(obtId).innerText = obt;
+                document.getElementById(fullId).innerText = full;
+                document.getElementById(pctId).innerText = full > 0 ? ((obt / full) * 100).toFixed(1) + '%' : '0%';
+            };
+
+            fillRow('p-math-obt', 'p-math-full', 'p-math-pct', m.mathObt, m.mathFull);
+            fillRow('p-sci-obt', 'p-sci-full', 'p-sci-pct', m.sciObt, m.sciFull);
+            fillRow('p-eng-obt', 'p-eng-full', 'p-eng-pct', m.engObt, m.engFull);
+            fillRow('p-soc-obt', 'p-soc-full', 'p-soc-pct', m.socObt, m.socFull);
+            fillRow('p-lang-obt', 'p-lang-full', 'p-lang-pct', m.langObt, m.langFull);
+
+            document.getElementById('p-total-obt').innerText = m.grandObt;
+            document.getElementById('p-total-full').innerText = m.grandFull;
+            document.getElementById('p-percentage').innerText = m.percentage;
+
+            window.print();
+        }
+
+        // CSV Download Feature
+        function exportCSV() {
+            let csv = "Name,Class,Contact,Parent,Total Days,Present Days,Grand Score Obtained,Grand Full Marks,Percentage\n";
+            students.forEach(s => {
+                let m = calculateMetrics(s);
+                csv += `"${s.name}","${s.classVal}","${s.phone}","${s.parent || ''}",${m.totalDays},${m.presentDays},${m.grandObt},${m.grandFull},${m.percentage}%\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'Archana_Tuition_Records.csv');
+            a.click();
+        }
+
+        function saveData() {
+            localStorage.setItem('archana_tuition_data', JSON.stringify(students));
+        }
+
+        renderAll();
+    </script>
+</body>
+</html>

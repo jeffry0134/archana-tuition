@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expense Tracker (₹ INR)</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --card-bg: #ffffff;
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --danger: #ef4444;
+      --text: #1f2937;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 2rem 1rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 850px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      margin-bottom: 0.3rem;
+    }
+
+    /* Summary Cards */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      padding: 1.25rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      margin-bottom: 1.5rem;
+    }
+
+    .card h3 {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .card .amount {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    /* Form Section */
+    form {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr auto;
+      gap: 0.75rem;
+    }
+
+    @media (max-width: 700px) {
+      form {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    input, select, button {
+      padding: 0.65rem 0.75rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+    }
+
+    button.btn-primary {
+      background-color: var(--primary);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    button.btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.95rem;
+    }
+
+    th {
+      background-color: #f9fafb;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .btn-delete {
+      background: transparent;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .btn-delete:hover {
+      text-decoration: underline;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Expense Tracker</h1>
+    <p style="color: var(--text-muted);">Track daily spending and review monthly overall totals</p>
+  </header>
+
+  <div class="summary-grid">
+    <div class="card" style="margin-bottom: 0;">
+      <h3>Today's Expenses</h3>
+      <div class="amount" id="todayTotal">₹0.00</div>
+    </div>
+    <div class="card" style="margin-bottom: 0;">
+      <h3>This Month's Total</h3>
+      <div class="amount" id="monthTotal">₹0.00</div>
+    </div>
+    <div class="card" style="margin-bottom: 0;">
+      <h3>All-Time Total</h3>
+      <div class="amount" id="allTimeTotal">₹0.00</div>
+    </div>
+  </div>
+  <br />
+
+  <div class="card">
+    <h2 class="section-title">Add New Expense</h2>
+    <form id="expenseForm">
+      <input type="text" id="desc" placeholder="Expense description" required />
+      <input type="number" id="amount" placeholder="Amount (₹)" step="0.01" min="0.01" required />
+      <select id="category" required>
+        <option value="Food & Groceries">Food & Groceries</option>
+        <option value="Transport & Fuel">Transport & Fuel</option>
+        <option value="Bills & Utilities">Bills & Utilities</option>
+        <option value="Shopping">Shopping</option>
+        <option value="Health & Medical">Health & Medical</option>
+        <option value="Entertainment">Entertainment</option>
+        <option value="Other">Other</option>
+      </select>
+      <input type="date" id="date" required />
+      <button type="submit" class="btn-primary">Add</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Overall Monthly Summary</h2>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Month / Year</th>
+            <th>Total Entries</th>
+            <th>Total Spent</th>
+          </tr>
+        </thead>
+        <tbody id="monthlySummaryList">
+          </tbody>
+      </table>
+      <div id="emptyMonthlyMsg" class="empty-state">No monthly records available yet.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Transaction History</h2>
+    <div class="table-container">
+      <table id="expenseTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Amount</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="expenseList">
+          </tbody>
+      </table>
+      <div id="emptyMessage" class="empty-state">No expenses recorded yet.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById('expenseForm');
+  const descInput = document.getElementById('desc');
+  const amountInput = document.getElementById('amount');
+  const categoryInput = document.getElementById('category');
+  const dateInput = document.getElementById('date');
+  const expenseList = document.getElementById('expenseList');
+  const monthlySummaryList = document.getElementById('monthlySummaryList');
+  const emptyMessage = document.getElementById('emptyMessage');
+  const emptyMonthlyMsg = document.getElementById('emptyMonthlyMsg');
+
+  const todayTotalEl = document.getElementById('todayTotal');
+  const monthTotalEl = document.getElementById('monthTotal');
+  const allTimeTotalEl = document.getElementById('allTimeTotal');
+
+  // Set default date to today
+  dateInput.value = new Date().toISOString().split('T')[0];
+
+  let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+
+  // Format currency with Indian Rupee symbol & locale formatting
+  function formatRupees(num) {
+    return '₹' + Number(num).toLocaleString('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  function updateDashboard() {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const currentMonthKey = todayStr.slice(0, 7); // YYYY-MM
+
+    let todaySum = 0;
+    let currentMonthSum = 0;
+    let allTimeSum = 0;
+    const monthlyGroups = {};
+
+    expenseList.innerHTML = '';
+    monthlySummaryList.innerHTML = '';
+
+    if (expenses.length === 0) {
+      emptyMessage.style.display = 'block';
+      emptyMonthlyMsg.style.display = 'block';
+    } else {
+      emptyMessage.style.display = 'none';
+      emptyMonthlyMsg.style.display = 'none';
+
+      // Sort newest to oldest by date
+      expenses.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      expenses.forEach((item, index) => {
+        const val = parseFloat(item.amount);
+        allTimeSum += val;
+
+        // Daily sum
+        if (item.date === todayStr) {
+          todaySum += val;
+        }
+
+        // Current Month sum
+        if (item.date.startsWith(currentMonthKey)) {
+          currentMonthSum += val;
+        }
+
+        // Aggregate by Month (YYYY-MM)
+        const monthKey = item.date.slice(0, 7);
+        if (!monthlyGroups[monthKey]) {
+          monthlyGroups[monthKey] = { total: 0, count: 0 };
+        }
+        monthlyGroups[monthKey].total += val;
+        monthlyGroups[monthKey].count += 1;
+
+        // Add Transaction Row
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${item.date}</td>
+          <td>${item.desc}</td>
+          <td>${item.category}</td>
+          <td>${formatRupees(item.amount)}</td>
+          <td><button class="btn-delete" onclick="deleteExpense(${index})">Delete</button></td>
+        `;
+        expenseList.appendChild(row);
+      });
+
+      // Populate Monthly Summary Table
+      const sortedMonths = Object.keys(monthlyGroups).sort().reverse();
+      sortedMonths.forEach(month => {
+        const dateObj = new Date(`${month}-01T00:00:00`);
+        const monthLabel = dateObj.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><strong>${monthLabel}</strong></td>
+          <td>${monthlyGroups[month].count} transaction(s)</td>
+          <td><strong>${formatRupees(monthlyGroups[month].total)}</strong></td>
+        `;
+        monthlySummaryList.appendChild(row);
+      });
+    }
+
+    // Update Live Cards
+    todayTotalEl.textContent = formatRupees(todaySum);
+    monthTotalEl.textContent = formatRupees(currentMonthSum);
+    allTimeTotalEl.textContent = formatRupees(allTimeSum);
+
+    localStorage.setItem('expenses', JSON.stringify(expenses));
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const newExpense = {
+      desc: descInput.value.trim(),
+      amount: parseFloat(amountInput.value),
+      category: categoryInput.value,
+      date: dateInput.value
+    };
+
+    expenses.push(newExpense);
+    updateDashboard();
+
+    // Reset Form fields
+    descInput.value = '';
+    amountInput.value = '';
+    dateInput.value = new Date().toISOString().split('T')[0];
+  });
+
+  window.deleteExpense = function(index) {
+    expenses.splice(index, 1);
+    updateDashboard();
+  };
+
+  // Initial load
+  updateDashboard();
+</script>
+</body>
+</html>
